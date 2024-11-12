@@ -1,6 +1,6 @@
 server:
   http:
-    addr: 0.0.0.0:8000
+    addr: 0.0.0.0:8080
     timeout: 1s
   grpc:
     addr: 0.0.0.0:9000
@@ -13,3 +13,10 @@ data:
     addr: 127.0.0.1:6379
     read_timeout: 0.2s
     write_timeout: 0.2s
+log:
+  path: ./logs/server.log
+  level: debug # 日志级别： debug|info|warn|error|fatal
+  max_size: 20 # 单位/MB
+  max_age: 30 # 单位/天
+  compress: true # 是否压缩
+  mode: console|file # 日志输出模式：console 控制台日志，file 文件日志，console|file 同时输出到控制台和文件

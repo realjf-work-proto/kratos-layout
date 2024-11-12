@@ -5,7 +5,9 @@ import (
 	"os"
 
 	"github.com/go-kratos/kratos-layout/internal/conf"
+	"github.com/realjf/zlog"
 
+	kratoszap "github.com/go-kratos/kratos/contrib/log/zap/v2"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/config/file"
@@ -49,15 +51,6 @@ func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server) *kratos.App {
 
 func main() {
 	flag.Parse()
-	logger := log.With(log.NewStdLogger(os.Stdout),
-		"ts", log.DefaultTimestamp,
-		"caller", log.DefaultCaller,
-		"service.id", id,
-		"service.name", Name,
-		"service.version", Version,
-		"trace.id", tracing.TraceID(),
-		"span.id", tracing.SpanID(),
-	)
 	c := config.New(
 		config.WithSource(
 			file.NewSource(flagconf),
@@ -73,6 +66,25 @@ func main() {
 	if err := c.Scan(&bc); err != nil {
 		panic(err)
 	}
+
+	zlog.InitZLog(&zlog.ZLogConfig{
+		Compress: bc.Log.Compress,
+		MaxSize:  int(bc.Log.MaxSize),
+		MaxAge:   int(bc.Log.MaxAge),
+		LogMode:  bc.Log.Mode,
+		Encoding: "json",
+		Level:    zlog.LogLevel(bc.Log.Level),
+		LogFile:  bc.Log.Path,
+	})
+	logger := log.With(kratoszap.NewLogger(zlog.ZLog().GetZCore()),
+		// "ts", log.DefaultTimestamp,
+		"caller", log.DefaultCaller,
+		"service.id", id,
+		"service.name", Name,
+		"service.version", Version,
+		"trace.id", tracing.TraceID(),
+		"span.id", tracing.SpanID(),
+	)
 
 	app, cleanup, err := wireApp(bc.Server, bc.Data, logger)
 	if err != nil {

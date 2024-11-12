@@ -29,7 +29,7 @@ init:
 # generate internal proto
 config:
 	protoc --proto_path=./internal \
-	       --proto_path=./third_party \
+	       --proto_path=./protos \
  	       --go_out=paths=source_relative:./internal \
 	       $(INTERNAL_PROTO_FILES)
 
@@ -37,7 +37,7 @@ config:
 # generate api proto
 api:
 	protoc --proto_path=./api \
-	       --proto_path=./third_party \
+	       --proto_path=./protos \
  	       --go_out=paths=source_relative:./api \
  	       --go-http_out=paths=source_relative:./api \
  	       --go-grpc_out=paths=source_relative:./api \
@@ -62,6 +62,13 @@ all:
 	make config;
 	make generate;
 
+
+.PHONY: run
+# run server
+run:
+	./bin/server -conf configs/config.yaml
+
+
 # show help
 help:
 	@echo ''
@@ -80,3 +87,4 @@ help:
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)
 
 .DEFAULT_GOAL := help
+
