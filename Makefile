@@ -33,6 +33,45 @@ config:
  	       --go_out=paths=source_relative:./internal \
 	       $(INTERNAL_PROTO_FILES)
 
+
+
+PROTO_FILE ?=
+.PHONY: client
+# generate client api proto
+client:
+	kratos-cli proto client --proto_path=./api \
+							--proto_path=./protos \
+							--go_out=./pkg/client \
+ 	    					--go-http_out=./pkg/client \
+ 	    					--go-grpc_out=./pkg/client \
+							--openapi_out=fq_schema_naming=true,default_response=false:. \
+							--go-errors_out=./pkg/client \
+							--go_opt=paths=source_relative \
+							--go-grpc_opt=paths=source_relative,gen_type=client \
+							--go-http_opt=paths=source_relative \
+							${PROTO_FILE}
+
+
+
+PROTO_FILE ?=
+.PHONY: server
+# generate client api proto
+server:
+	kratos-cli proto client --proto_path=./api \
+							--proto_path=./protos \
+							--go_out=paths=source_relative:. \
+ 	    					--go-http_out=paths=source_relative:. \
+ 	    					--go-grpc_out=paths=source_relative:. \
+							--openapi_out=fq_schema_naming=true,default_response=false:. \
+							--go-errors_out=paths=source_relative:. \
+							--go_opt=paths=source_relative \
+							--go-grpc_opt=paths=source_relative,gen_type=server \
+							--go-http_opt=paths=source_relative \
+							${PROTO_FILE}
+
+
+
+
 .PHONY: api
 # generate api proto
 api:
