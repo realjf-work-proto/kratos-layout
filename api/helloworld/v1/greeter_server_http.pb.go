@@ -52,28 +52,3 @@ func _Greeter_SayHello0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Contex
 		return ctx.Result(200, reply)
 	}
 }
-
-type GreeterHTTPClient interface {
-	SayHello(ctx context.Context, req *HelloRequest, opts ...http.CallOption) (rsp *HelloReply, err error)
-}
-
-type GreeterHTTPClientImpl struct {
-	cc *http.Client
-}
-
-func NewGreeterHTTPClient(client *http.Client) GreeterHTTPClient {
-	return &GreeterHTTPClientImpl{client}
-}
-
-func (c *GreeterHTTPClientImpl) SayHello(ctx context.Context, in *HelloRequest, opts ...http.CallOption) (*HelloReply, error) {
-	var out HelloReply
-	pattern := "/helloworld/{name}"
-	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationGreeterSayHello))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}

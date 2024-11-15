@@ -19,11 +19,12 @@ endif
 # init env
 init:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+	go install github.com/realjf-work-proto/protoc-gen-go-grpc@latest
 	go install github.com/realjf-work-proto/kratos-cli@latest
-	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@latest
+	go install github.com/realjf-work-proto/protoc-gen-go-http@latest
 	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 	go install github.com/google/wire/cmd/wire@latest
+	go install github.com/go-swagger/go-swagger/cmd/swagger@latest
 
 .PHONY: config
 # generate internal proto
@@ -48,14 +49,14 @@ client:
 							--go-errors_out=./pkg/client \
 							--go_opt=paths=source_relative \
 							--go-grpc_opt=paths=source_relative,gen_type=client \
-							--go-http_opt=paths=source_relative \
+							--go-http_opt=paths=source_relative,gen_type=client \
 							${PROTO_FILE}
 
 
 
 PROTO_FILE ?=
 .PHONY: server
-# generate client api proto
+# generate server api proto
 server:
 	kratos-cli proto client --proto_path=./api \
 							--proto_path=./protos \
@@ -66,7 +67,7 @@ server:
 							--go-errors_out=paths=source_relative:. \
 							--go_opt=paths=source_relative \
 							--go-grpc_opt=paths=source_relative,gen_type=server \
-							--go-http_opt=paths=source_relative \
+							--go-http_opt=paths=source_relative,gen_type=server \
 							${PROTO_FILE}
 
 
@@ -106,6 +107,17 @@ all:
 # run server
 run:
 	./bin/server -conf configs/config.yaml
+
+
+.PHONY: validate
+validate:
+	swagger validate openapi.yaml
+
+
+.PHONY: swagger
+# generate swagger html file
+# swagger:
+# 	swagger generate html -o ./docs/openapi.html -f openapi.yaml
 
 
 # show help

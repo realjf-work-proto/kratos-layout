@@ -21,38 +21,6 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationGreeterSayHello = "/helloworld.v1.Greeter/SayHello"
 
-type GreeterHTTPServer interface {
-	// SayHello Sends a greeting
-	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
-}
-
-func RegisterGreeterHTTPServer(s *http.Server, srv GreeterHTTPServer) {
-	r := s.Route("/")
-	r.GET("/helloworld/{name}", _Greeter_SayHello0_HTTP_Handler(srv))
-}
-
-func _Greeter_SayHello0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in HelloRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationGreeterSayHello)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SayHello(ctx, req.(*HelloRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*HelloReply)
-		return ctx.Result(200, reply)
-	}
-}
-
 type GreeterHTTPClient interface {
 	SayHello(ctx context.Context, req *HelloRequest, opts ...http.CallOption) (rsp *HelloReply, err error)
 }
